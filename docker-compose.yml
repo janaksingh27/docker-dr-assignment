@@ -1,0 +1,45 @@
+
+services:
+  db:
+    image: postgres:15
+    container_name: docker-dr-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - dr-network
+
+  backend:
+    build: ./backend
+    container_name: docker-dr-backend
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mydb
+    depends_on:
+      - db
+    networks:
+      - dr-network
+
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    container_name: docker-dr-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - dr-network
+
+volumes:
+  db-data:
+
+networks:
+  dr-network:
